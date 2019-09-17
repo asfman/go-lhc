@@ -1,7 +1,6 @@
 package main
 
 import (
-  "sort"
   "regexp"
 	"bytes"
 	"encoding/json"
@@ -83,36 +82,52 @@ func main() {
 }
 
 func stat(lhc []Lhc) string {
-  var st map[string]int
-  st = make(map[string]int)
-  var nstat map[string]int
-  nstat = make(map[string]int)
+  var st map[string]int = make(map[string]int)
+  var nstat map[string]int = make(map[string]int)
   for _, item := range lhc {
     no, _ := strconv.Atoi(item.Sno)
     st[xs[no%12]] += 1
     nstat[strconv.Itoa(no%10)] += 1
   }
   var ret = "最近" + strconv.Itoa(len(lhc)) + "次开奖，"
-  ret += sortMap(st)
+  ret += sortXsMap(st)
   ret += "\n\n"
-  ret += sortMap(nstat)
+  ret += sortNumberMap(nstat)
   return ret
 }
 
-func sortMap(m map[string]int) string {
-   var keys []string
-   for k := range m {
-      keys = append(keys, k)
-   }
-   sort.Strings(keys)
+func sortXsMap(m map[string]int) string {
    var ret string = ""
-   for _, k := range keys {
-     ret += k +  "出现" + strconv.Itoa(m[k]) + "次, "
+   sx := [12]string{"鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"}
+   for _, k := range sx {
+     var snum = "0"
+     val, ok := m[k]
+     if ok {
+       snum = strconv.Itoa(val)
+     }
+     ret += k +  "出现" + snum + "次, "
    }
    r, _ := regexp.Compile(", $")
    ret = r.ReplaceAllString(ret, "")
    return ret
 }
+
+func sortNumberMap(m map[string]int) string {
+   var ret string = ""
+   nums := [10]string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
+   for _, k := range nums {
+     var snum = "0"
+     val, ok := m[k]
+     if ok {
+       snum = strconv.Itoa(val)
+     }
+     ret += k +  "出现" + snum + "次, "
+   }
+   r, _ := regexp.Compile(", $")
+   ret = r.ReplaceAllString(ret, "")
+   return ret
+}
+
 
 func format(sno string) string {
 	no, _ := strconv.Atoi(sno)
