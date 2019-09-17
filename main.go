@@ -10,6 +10,8 @@ import (
 	"strings"
 	"strconv"
 	"github.com/gin-gonic/gin"
+  "math/rand"
+	"time"
 )
 
 type Lhc struct {
@@ -93,12 +95,41 @@ func stat(lhc []Lhc) string {
   ret += sortXsMap(st)
   ret += "\n\n"
   ret += sortNumberMap(nstat)
+  ret += "\n\n"
+  ret += recommend(st)
   return ret
+}
+
+func recommend(m map[string]int) string {
+  rc := []string {}
+  for k, v := range m {
+    if v == 3 {
+      rc = append(rc, k)
+    }
+  }
+  for _, k := range sx {
+		_, ok := m[k]
+		if !ok {
+			rc = append(rc, k)
+		}
+	}
+	shuffle(rc)
+  return "推荐生肖：" + strings.Join(rc, ",")
+}
+
+
+func shuffle(vals []string) {
+  r := rand.New(rand.NewSource(time.Now().Unix()))
+  for len(vals) > 0 {
+    n := len(vals)
+    randIndex := r.Intn(n)
+    vals[n-1], vals[randIndex] = vals[randIndex], vals[n-1]
+    vals = vals[:n-1]
+  }
 }
 
 func sortXsMap(m map[string]int) string {
    var ret string = ""
-   sx := [12]string{"鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"}
    for _, k := range sx {
      var snum = "0"
      val, ok := m[k]
@@ -136,6 +167,7 @@ func format(sno string) string {
 
 
 var xs map[int]string = make(map[int]string, 12)
+var sx = [12]string{"鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"}
 func init() {
   xs[1] = "猪"
 	xs[2] = "狗"
