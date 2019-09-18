@@ -50,24 +50,28 @@ func setupRouter() *gin.Engine {
 				c.String(http.StatusOK, "【特码：" + format(sno) + ", 日期: " + splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0] + "】")
 			} else {
         var fString = stat(lhc) + "\n\n"
-				if showAll == "clean" {
-					for index, item := range lhc {
-						if index != len(lhc)-1 {
-							fString += format(item.Sno) + ", "
-						} else {
-							fString += format(item.Sno)
-						}
-					}
-				} else {
-					for index, item := range lhc {
-						splitDate := strings.Split(item.Date, ("/"))
-						if index != len(lhc)-1 {
-							fString += splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0] + ": " + format(item.Sno) + "\n"
-						} else {
-							fString += splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0] + ": " + format(item.Sno)
-						}
-					}
-				}
+        switch showAll {
+          case "clean":
+            for index, item := range lhc {
+              if index != len(lhc)-1 {
+                fString += format(item.Sno) + ", "
+              } else {
+                fString += format(item.Sno)
+              }
+            }
+          case "all":
+            for index, item := range lhc {
+              splitDate := strings.Split(item.Date, ("/"))
+              if index != len(lhc)-1 {
+                fString += splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0] + ": " + format(item.Sno) + "\n"
+              } else {
+                fString += splitDate[2] + "-" + splitDate[1] + "-" + splitDate[0] + ": " + format(item.Sno)
+              }
+            }
+          default:
+            r, _ := regexp.Compile("[\n]+ $")
+            fString  = r.ReplaceAllString(fString, "")
+        }
 				c.String(http.StatusOK, fString)
 			}
 			return
