@@ -114,7 +114,11 @@ func recommend(m map[string]int) string {
 		}
 	}
 	shuffle(rc)
-  return "推荐生肖：" + strings.Join(rc, ",")
+  count := 4
+  if len(rc) < count {
+    count = len(rc)
+  }
+  return "推荐生肖：" + strings.Join(rc[0:count], ",")
 }
 
 
