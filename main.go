@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
   "math/rand"
 	"time"
+  "github.com/bradfitz/iter"
 )
 
 type Lhc struct {
@@ -100,11 +101,11 @@ func stat(lhc []Lhc) string {
   ret += "\n\n"
   ret += sortNumberMap(nstat)
   ret += "\n\n"
-  ret += recommend(st)
+  ret += recommend(st, nstat)
   return ret
 }
 
-func recommend(m map[string]int) string {
+func recommend(m map[string]int, nstat map[string]int) string {
   rc := []string {}
   for k, v := range m {
     if v == 3 {
@@ -122,7 +123,44 @@ func recommend(m map[string]int) string {
   if len(rc) < count {
     count = len(rc)
   }
-  return "推荐生肖：" + strings.Join(rc[0:count], ",")
+  rc = rc[0:count]
+  ns := []string {}
+  for _, name := range rc {
+    nums := []string {}
+    for n := range iter.N(49) {
+      if xs[n%12] == name {
+        nums = append(nums, strconv.Itoa(n))
+      }
+    }
+    shuffle(nums)
+    s := ""
+    s = findMatch(nums, nstat)
+    if s != "" {
+      ns = append(ns, s)
+    } else {
+      ns = append(ns, nums[0])
+    }
+  }
+  ret := ""
+  for idx, val := range rc {
+    ret += fmt.Sprintf("%s(%s)", val, ns[idx])
+    if idx < len(rc) {
+      ret += ", "
+    }
+  }
+  return "推荐生肖：" + ret
+}
+
+func findMatch(nums []string, nstat map[string]int) string {
+  for k, v := range nstat {
+    for _, num := range nums {
+      l := num[len(num)-1:]
+      if (k == l && v == 3) {
+        return num 
+      }
+    }
+  }
+  return ""
 }
 
 
